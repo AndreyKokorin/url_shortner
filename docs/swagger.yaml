@@ -1,0 +1,243 @@
+basePath: /api/
+definitions:
+  handler_Links.OriginalUrl:
+    properties:
+      original_url:
+        type: string
+    type: object
+  model.Link:
+    properties:
+      clicks:
+        type: integer
+      id:
+        type: integer
+      original_url:
+        type: string
+      short_url:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  model.User:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      password:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API предназначена для сокращения URL-адресов и мониторинга статистики
+    переходов по ним.
+  title: Сокращатель ссылок
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Аутентификация пользователя по email и паролю. Возвращает JWT токен
+        при успешном входе
+      parameters:
+      - description: Данные пользователя (email и пароль)
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/model.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешная авторизация и JWT токен
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Ошибка валидации данных
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Неверный email или пароль
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Вход пользователя
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Регистрирует нового пользователя по email и паролю. Email должен
+        быть уникальным
+      parameters:
+      - description: Данные пользователя (email и пароль)
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/model.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Пользователь успешно создан
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Ошибка валидации входных данных
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "409":
+          description: Пользователь с таким email уже существует
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Регистрация пользователя
+      tags:
+      - auth
+  /links/{linkID}:
+    delete:
+      description: Удаляет указанную ссылку, если она принадлежит авторизованному
+        пользователю
+      parameters:
+      - description: ID ссылки для удаления
+        in: path
+        name: linkID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: Ссылка успешно удалена
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Ошибка получения user_id или некорректный linkID
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Ссылка не принадлежит пользователю или другая ошибка удаления
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Удалить ссылку пользователя
+      tags:
+      - links
+  /links/{short_link}:
+    get:
+      description: Выполняет редирект на исходный URL, используя сокращённую ссылку
+      parameters:
+      - description: Сокращённая ссылка
+        in: path
+        name: short_link
+        required: true
+        type: string
+      responses:
+        "302":
+          description: Редирект на оригинальный URL
+          schema:
+            type: string
+        "500":
+          description: Ошибка при обработке редиректа
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Редирект на оригинальный URL
+      tags:
+      - links
+  /short/links:
+    get:
+      description: Возвращает список всех сокращённых ссылок, созданных авторизованным
+        пользователем
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список ссылок
+          schema:
+            items:
+              $ref: '#/definitions/model.Link'
+            type: array
+        "400":
+          description: Ошибка получения user_id или ссылок
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Получить все ссылки пользователя
+      tags:
+      - links
+  /short/new-link:
+    post:
+      consumes:
+      - application/json
+      description: Преобразует длинный URL в короткую ссылку для авторизованного пользователя
+      parameters:
+      - description: Оригинальный URL для сокращения
+        in: body
+        name: original_url
+        required: true
+        schema:
+          $ref: '#/definitions/handler_Links.OriginalUrl'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешно созданная короткая ссылка
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Ошибка валидации входных данных
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Ошибка авторизации (нет user_id)
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      tags:
+      - links
+securityDefinitions:
+  BearerAuth:
+    description: Введите токен в формате "Bearer <token>"
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
