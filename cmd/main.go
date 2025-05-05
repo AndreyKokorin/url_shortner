@@ -4,6 +4,7 @@ import (
 	"URL_shortner/config"
 	"URL_shortner/database"
 	routers "URL_shortner/internal/router"
+	"URL_shortner/pkg/helps"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -28,6 +29,7 @@ func main() {
 	}
 
 	router := gin.Default()
+	helps.Cors(router)
 	routers.SetupUserRouter(router, db)
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))

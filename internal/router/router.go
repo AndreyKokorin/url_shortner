@@ -9,14 +9,11 @@ import (
 	userRepository "URL_shortner/internal/repository/user"
 	"URL_shortner/internal/service/links"
 	service "URL_shortner/internal/service/user"
-	"URL_shortner/pkg/helps"
 	"database/sql"
 	"github.com/gin-gonic/gin"
 )
 
 func SetupUserRouter(engine *gin.Engine, db *sql.DB) {
-	helps.Cors(engine)
-
 	api := engine.Group("/api")
 
 	postgresUserRep := userRepository.NewPostgresUserRepository(db)
