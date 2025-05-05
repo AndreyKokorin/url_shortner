@@ -8,37 +8,11 @@ services:
     ports:
       - "8088:8088"
     environment:
-      - DB_HOST=db
-      - DB_PORT=5432
-      - DB_USER=postgres
-      - DB_PASSWORD=andrey
-      - DB_NAME=url_shortner
+      - DB_URL=postgresql://postgres:bWFZyEjMNtsptlGAiOZAvUlxnMqeYbZC@shuttle.proxy.rlwy.net:28736/railway
+      - LOCAL_PORT=:8088
+      - JWT_SECRET=qazwsxedcrfv
     env_file:
       - ./config.env
     volumes:
       - ./config.env:/app/config.env
-    depends_on:
-      db:
-        condition: service_healthy
     restart: unless-stopped
-
-  db:
-    image: postgres:16-alpine
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=andrey
-      - POSTGRES_DB=url_shortner
-    ports:
-      - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-      - ./backapp_shortner.sql:/docker-entrypoint-initdb.d/init.sql
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d url_shortner"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-volumes:
-  pgdata:

@@ -9,11 +9,10 @@ import (
 )
 
 func PostgresDBInit(cfg config.Config) (*sql.DB, error) {
-	strCon := fmt.Sprintf("user=%s dbname=%s password=%s host=%s port=%s sslmode=disable",
-		cfg.DB_USER, cfg.DB_NAME, cfg.DB_PASSWORD, cfg.DB_HOST, cfg.DB_PORT)
+	fmt.Println(cfg)
 	var err error
 	var db *sql.DB
-	db, err = sql.Open("postgres", strCon)
+	db, err = sql.Open("postgres", cfg.DB_URL)
 
 	if err != nil {
 		return nil, err
@@ -24,7 +23,7 @@ func PostgresDBInit(cfg config.Config) (*sql.DB, error) {
 		return nil, err
 	}
 
-	log.Printf("Connected to database %s", cfg.DB_NAME)
+	log.Printf("Connected to database")
 
 	return db, nil
 }
