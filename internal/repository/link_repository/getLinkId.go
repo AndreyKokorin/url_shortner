@@ -11,7 +11,7 @@ func (pr *PostgresLinkRepository) GetLinkByID(linkId int) (*model.Link, error) {
 		&link.ShortUrl,
 		&link.Clicks,
 		&link.UserId,
-		&link.Last_click_at,
+		&link.LastClickAt,
 	)
 
 	if err != nil {

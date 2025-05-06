@@ -13,7 +13,7 @@ func (pr *PostgresLinkRepository) GetUserLinks(userid int) ([]model.Link, error)
 	for rows.Next() {
 		var link model.Link
 
-		err = rows.Scan(&link.Id, &link.OriginalURL, &link.ShortUrl, &link.Clicks, &link.UserId, &link.Last_click_at)
+		err = rows.Scan(&link.Id, &link.OriginalURL, &link.ShortUrl, &link.Clicks, &link.UserId, &link.LastClickAt)
 
 		if err != nil {
 			return nil, err
